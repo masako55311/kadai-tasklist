@@ -4,7 +4,12 @@
     <c:param name="content">
     <h2>新規タスクの登録</h2>
     <form method="post" action="${pageContext.request.contextPath}/create">
-        <c:import url="_form.jsp" />
+        <label for="content">タスク</label><br />
+        <input type="text" name="content" value="${task.content}" />
+        <br /><br />
+
+        <input type="hidden" name="_token" value="${_token}" />
+        <button type="submit">タスクの追加</button>
     </form>
 
     <p><a href="${pageContext.request.contextPath}/index">一覧にもどる</a></p>

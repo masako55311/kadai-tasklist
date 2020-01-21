@@ -1,9 +1,11 @@
 package controllers;
 
+import java.util.List;
 import java.io.IOException;
 import java.sql.Timestamp;
 
 import javax.persistence.EntityManager;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import models.Task;
+import models.validators.ContentValidators;
 import utils.DBUtil;
 
 /**
@@ -43,8 +46,23 @@ public class CreateServlet extends HttpServlet {
         t.setCreated_at(currentTime);
         t.setUpdated_at(currentTime);
 
+
+
         String content=request.getParameter("content");
         t.setContent(content);
+
+        //バリデーションの実行
+        List<String> errors =ContentValidators.validate(t);
+        if(errors.size() > 0) {
+            em.close();
+
+            request.setAttribute("_token", request.getSession().getId());
+            request.setAttribute("task",t);
+            request.setAttribute("errors", errors);
+
+            RequestDispatcher rd=request.getRequestDispatcher("/WEB-INF/views/tasks/new.jsp");
+            rd.forward(request, response);
+        }else {
 
         //データベースに保存
         em.getTransaction().begin();
@@ -55,6 +73,7 @@ public class CreateServlet extends HttpServlet {
 
         //一覧にもどる
         response.sendRedirect(request.getContextPath()+"/index");
+        }
         }
     }
 
